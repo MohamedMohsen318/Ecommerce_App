@@ -1,77 +1,83 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Dashboard | ' . config('app.name', 'Ecommerce App'))
-@section('page_title', 'Dashboard')
-@section('page_description', 'A stable overview for store activity, orders, customers, and revenue.')
+@section('auth_guard', 'admin')
+@section('dashboard_route', 'admin.dashboard')
+@section('logout_route', 'admin.logout')
+
+@section('title', 'Admin Dashboard | ' . config('app.name', 'Ecommerce App'))
+@section('page_title', 'Admin Dashboard')
+@section('page_description', 'Monitor sales, orders, products, and customer activity from one workspace.')
 
 @section('actions')
-    <button class="btn btn-primary" type="button">New order</button>
+    <button class="btn" type="button">Export</button>
+    <button class="btn btn-primary" type="button">New product</button>
 @endsection
 
 @push('styles')
     <style>
-        .stats-grid {
+        .overview {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 16px;
             margin-bottom: 18px;
         }
 
-        .stat,
+        .metric,
         .panel,
         .table-panel {
             background: #ffffff;
-            border: 1px solid #e4e8f0;
+            border: 1px solid #dfe6ee;
             border-radius: 8px;
-            box-shadow: 0 10px 28px rgba(16, 24, 39, .05);
+            box-shadow: 0 12px 30px rgba(24, 32, 47, .05);
         }
 
-        .stat {
-            min-height: 132px;
+        .metric {
+            min-height: 142px;
             padding: 18px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            display: grid;
+            gap: 18px;
         }
 
-        .stat-top {
+        .metric-head,
+        .panel-head {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
             gap: 12px;
         }
 
-        .stat-label {
-            color: #697386;
+        .metric-label {
+            color: #687386;
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
         }
 
-        .stat-icon {
+        .metric-icon {
             width: 38px;
             height: 38px;
             border-radius: 8px;
             display: grid;
             place-items: center;
             color: #ffffff;
-            font-weight: 800;
+            font-weight: 900;
         }
 
-        .stat strong {
+        .metric strong {
             display: block;
-            margin-top: 14px;
             font-size: 30px;
             line-height: 1;
         }
 
-        .stat small {
-            color: #0a6f67;
+        .metric small {
+            display: block;
+            margin-top: 8px;
+            color: #0b5f59;
             font-weight: 800;
         }
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1.55fr) minmax(320px, .95fr);
+            grid-template-columns: minmax(0, 1.5fr) minmax(320px, .95fr);
             gap: 18px;
             align-items: start;
         }
@@ -81,10 +87,6 @@
         }
 
         .panel-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
             margin-bottom: 18px;
         }
 
@@ -95,78 +97,81 @@
         }
 
         .panel p {
-            margin: 4px 0 0;
-            color: #697386;
+            margin: 5px 0 0;
+            color: #687386;
             line-height: 1.5;
         }
 
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: #f2f5f8;
+            color: #4b5565;
+            font-size: 12px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
         .chart {
-            height: 260px;
+            height: 268px;
             display: grid;
             grid-template-columns: repeat(7, minmax(30px, 1fr));
             gap: 12px;
             align-items: end;
-            padding-top: 20px;
-            border-top: 1px solid #edf0f5;
+            padding: 20px 0 4px;
+            border-top: 1px solid #edf1f5;
         }
 
         .bar {
-            min-height: 38px;
+            min-height: 42px;
             border-radius: 8px 8px 0 0;
-            background: linear-gradient(180deg, #0f8f83, #0a6f67);
+            background: linear-gradient(180deg, #0f766e, #0b5f59);
             display: flex;
             align-items: end;
             justify-content: center;
             color: white;
             font-size: 12px;
-            font-weight: 800;
+            font-weight: 900;
             padding-bottom: 8px;
         }
 
-        .quick-list {
+        .activity-list {
             display: grid;
             gap: 12px;
         }
 
-        .quick-item {
+        .activity-item {
             display: grid;
             grid-template-columns: 42px minmax(0, 1fr) auto;
             gap: 12px;
             align-items: center;
             padding: 12px;
-            border: 1px solid #edf0f5;
+            border: 1px solid #edf1f5;
             border-radius: 8px;
         }
 
-        .quick-badge {
+        .activity-badge {
             width: 42px;
             height: 42px;
             border-radius: 8px;
             display: grid;
             place-items: center;
-            background: #f0f8f7;
-            color: #0a6f67;
+            background: #e7f6f2;
+            color: #0b5f59;
             font-weight: 900;
         }
 
-        .quick-item strong {
+        .activity-item strong {
             display: block;
             overflow-wrap: anywhere;
         }
 
-        .quick-item span {
-            color: #697386;
+        .activity-item span {
+            color: #687386;
             font-size: 13px;
-        }
-
-        .pill {
-            padding: 6px 9px;
-            border-radius: 999px;
-            background: #f4f6f9;
-            color: #4b5565;
-            font-size: 12px;
-            font-weight: 800;
-            white-space: nowrap;
         }
 
         .table-panel {
@@ -176,7 +181,15 @@
 
         .table-head {
             padding: 18px 20px;
-            border-bottom: 1px solid #e4e8f0;
+            border-bottom: 1px solid #dfe6ee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
         }
 
         table {
@@ -187,19 +200,19 @@
         th,
         td {
             padding: 14px 20px;
-            border-bottom: 1px solid #edf0f5;
+            border-bottom: 1px solid #edf1f5;
             text-align: left;
             white-space: nowrap;
         }
 
         th {
-            color: #697386;
+            color: #687386;
             font-size: 12px;
             text-transform: uppercase;
         }
 
         td {
-            font-weight: 600;
+            font-weight: 700;
         }
 
         tr:last-child td { border-bottom: 0; }
@@ -210,10 +223,10 @@
             min-height: 26px;
             padding: 0 9px;
             border-radius: 999px;
-            background: #e9fbf7;
-            color: #075f57;
+            background: #e7f6f2;
+            color: #0b5f59;
             font-size: 12px;
-            font-weight: 800;
+            font-weight: 900;
         }
 
         .status.warn {
@@ -221,30 +234,31 @@
             color: #93560b;
         }
 
-        .table-scroll {
-            overflow-x: auto;
+        .status.info {
+            background: #eaf1ff;
+            color: #3157d5;
         }
 
         @media (max-width: 1060px) {
-            .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .dashboard-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 620px) {
-            .stats-grid { grid-template-columns: 1fr; }
+            .overview { grid-template-columns: 1fr; }
             .chart { gap: 8px; height: 220px; }
-            .quick-item { grid-template-columns: 38px minmax(0, 1fr); }
-            .quick-item .pill { grid-column: 2; width: fit-content; }
+            .activity-item { grid-template-columns: 38px minmax(0, 1fr); }
+            .activity-item .pill { grid-column: 2; width: fit-content; }
         }
     </style>
 @endpush
 
 @section('content')
-    <div class="stats-grid">
-        <article class="stat">
-            <div class="stat-top">
-                <span class="stat-label">Revenue</span>
-                <span class="stat-icon" style="background:#0f8f83">$</span>
+    <div class="overview">
+        <article class="metric">
+            <div class="metric-head">
+                <span class="metric-label">Revenue</span>
+                <span class="metric-icon" style="background:#0f766e">$</span>
             </div>
             <div>
                 <strong>$24,860</strong>
@@ -252,36 +266,36 @@
             </div>
         </article>
 
-        <article class="stat">
-            <div class="stat-top">
-                <span class="stat-label">Orders</span>
-                <span class="stat-icon" style="background:#3b82f6">#</span>
+        <article class="metric">
+            <div class="metric-head">
+                <span class="metric-label">Orders</span>
+                <span class="metric-icon" style="background:#3157d5">O</span>
             </div>
             <div>
                 <strong>1,248</strong>
-                <small>184 pending</small>
+                <small>184 pending review</small>
             </div>
         </article>
 
-        <article class="stat">
-            <div class="stat-top">
-                <span class="stat-label">Customers</span>
-                <span class="stat-icon" style="background:#f59f38">C</span>
+        <article class="metric">
+            <div class="metric-head">
+                <span class="metric-label">Customers</span>
+                <span class="metric-icon" style="background:#c27803">C</span>
             </div>
             <div>
                 <strong>8,932</strong>
-                <small>321 new</small>
+                <small>321 new accounts</small>
             </div>
         </article>
 
-        <article class="stat">
-            <div class="stat-top">
-                <span class="stat-label">Conversion</span>
-                <span class="stat-icon" style="background:#e85d75">%</span>
+        <article class="metric">
+            <div class="metric-head">
+                <span class="metric-label">Stock alerts</span>
+                <span class="metric-icon" style="background:#c0265c">!</span>
             </div>
             <div>
-                <strong>4.8%</strong>
-                <small>Healthy traffic</small>
+                <strong>27</strong>
+                <small>7 products critical</small>
             </div>
         </article>
     </div>
@@ -291,7 +305,7 @@
             <div class="panel-head">
                 <div>
                     <h2>Weekly sales</h2>
-                    <p>Orders and revenue are ready for the next ecommerce pages.</p>
+                    <p>Revenue trend across the last seven days.</p>
                 </div>
                 <span class="pill">Last 7 days</span>
             </div>
@@ -310,24 +324,24 @@
         <aside class="panel">
             <div class="panel-head">
                 <div>
-                    <h2>Today</h2>
-                    <p>Important work waiting for the store team.</p>
+                    <h2>Needs attention</h2>
+                    <p>Admin work waiting for action today.</p>
                 </div>
             </div>
 
-            <div class="quick-list">
-                <div class="quick-item">
-                    <span class="quick-badge">18</span>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <span class="activity-badge">18</span>
                     <span><strong>Orders to review</strong><span>Payment and shipping checks</span></span>
                     <span class="pill">Now</span>
                 </div>
-                <div class="quick-item">
-                    <span class="quick-badge">7</span>
+                <div class="activity-item">
+                    <span class="activity-badge">7</span>
                     <span><strong>Low stock products</strong><span>Inventory needs attention</span></span>
                     <span class="pill">Stock</span>
                 </div>
-                <div class="quick-item">
-                    <span class="quick-badge">12</span>
+                <div class="activity-item">
+                    <span class="activity-badge">12</span>
                     <span><strong>Support messages</strong><span>Customer questions open</span></span>
                     <span class="pill">Inbox</span>
                 </div>
@@ -338,6 +352,7 @@
     <section class="table-panel">
         <div class="table-head">
             <h2>Recent orders</h2>
+            <span class="pill">Live overview</span>
         </div>
 
         <div class="table-scroll">
@@ -370,7 +385,14 @@
                         <td>#EC-1046</td>
                         <td>Sara Ali</td>
                         <td>$412.20</td>
-                        <td><span class="status">Shipped</span></td>
+                        <td><span class="status info">Shipped</span></td>
+                        <td>May 28, 2026</td>
+                    </tr>
+                    <tr>
+                        <td>#EC-1045</td>
+                        <td>Omar Adel</td>
+                        <td>$74.00</td>
+                        <td><span class="status">Paid</span></td>
                         <td>May 28, 2026</td>
                     </tr>
                 </tbody>

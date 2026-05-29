@@ -10,10 +10,26 @@ class ExampleTest extends TestCase
     /**
      * A basic test example.
      */
-    public function test_the_application_returns_a_successful_response(): void
+    public function test_guest_is_redirected_to_login_from_dashboard(): void
     {
         $response = $this->get('/');
 
-        $response->assertStatus(200);
+        $response->assertRedirect(route('login'));
+    }
+
+    public function test_guest_is_redirected_to_admin_login_from_admin_dashboard(): void
+    {
+        $response = $this->get('/admin/dashboard');
+
+        $response->assertRedirect(route('admin.login'));
+    }
+
+    public function test_expired_admin_logout_redirects_to_admin_login(): void
+    {
+        $response = $this->withMiddleware()->post('/admin/logout', [
+            '_token' => 'expired-token',
+        ]);
+
+        $response->assertRedirect(route('admin.login'));
     }
 }

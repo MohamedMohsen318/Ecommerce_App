@@ -11,7 +11,9 @@ use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    public function __construct(private readonly AuthService $authService) {}
+    public function __construct(private readonly AuthService $authService) {
+
+    }
 
     public function showLogin(): View
     {
